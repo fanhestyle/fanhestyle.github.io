@@ -1,6 +1,6 @@
 baseURL = "http://example.org/"
-languageCode = "en-us"
-defaultContentLanguage = "en"
+languageCode = "zh-cn"
+defaultContentLanguage = "cn"
 author = "Hugo Authors"
 title = "Fanhe博客"
 theme = "hugo-vitae"
@@ -95,10 +95,10 @@ name = "关于我"
 url = "/about"
 weight = 3
 
-[[menu.main]]
-name = "标签"
-url = "/tags"
-weight = 4
+#[[menu.main]]
+#name = "标签"
+#url = "/tags"
+#weight = 4
 
 [[menu.main]]
 name = "分类"
