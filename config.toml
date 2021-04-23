@@ -1,4 +1,4 @@
-baseURL = "blog.healex.xyz"
+baseURL = "https://blog.healex.xyz"
 languageCode = "zh-cn"
 defaultContentLanguage = "cn"
 author = "Hugo Authors"
