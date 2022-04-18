@@ -23,7 +23,7 @@ draft = false
 
 操作系统的启动类似于一场接力赛，BIOS选手把第一棒将给我们的MBR，从MBR开始之后就是我们需要关心的内容，于是我们需要首先编写MBR，MBR中的内容是固定的，如下图所示：
 
-![图片](../../static/img/osdev/osdev-mbr.png)
+![图片](/img/osdev/osdev-mbr.png)
 
 目前我们关心的只有第一项：启动代码，后续在进行磁盘管理方面功能开发的时候需要了解第二项
 
@@ -134,4 +134,4 @@ clean:
 
 运行效果如下：
 
-![图片](../../static/img/osdev/mbr-run.png)
+![图片](/img/osdev/mbr-run.png)
