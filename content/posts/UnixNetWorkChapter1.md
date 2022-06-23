@@ -67,29 +67,185 @@ extern int *__errno_location (void) __THROW __attribute_const__;
 ## 6. 简单的时间获取客户端  
 
 ```
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#define SERV_PORT 8899
+#define BUF_SIZE 1024
+
+int main(int argc, char **argv)
+{
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s <IPaddress>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
+    {
+        perror("socket()");
+        exit(EXIT_FAILURE);
+    }
+
+    struct sockaddr_in servaddr;
+
+    bzero(&servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(SERV_PORT);
+    int ret = inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
+    if (ret == 0)
+    {
+        fprintf(stderr, "Error IPaddress\n");
+        exit(EXIT_FAILURE);
+    }
+    else if (ret < 0)
+    {
+        perror("inet_pton()");
+        exit(EXIT_FAILURE);
+    }
+
+    socklen_t servaddr_len = sizeof(servaddr);
+    ret = connect(sockfd, (struct sockaddr *)&servaddr, servaddr_len);
+    if (ret < 0)
+    {
+        perror("connect()");
+        exit(EXIT_FAILURE);
+    }
+
+    char buf[BUF_SIZE];
+    int n;
+
+    while (1)
+    {
+        if ((n = read(sockfd, buf, BUF_SIZE)) < 0)
+        {
+            if (errno == EINTR)
+            {
+                continue;
+            }
+            else
+            {
+                perror("read()");
+                exit(EXIT_FAILURE);
+            }
+        }
+        else if (n == 0)
+        {
+            break;
+        }
+
+        write(STDOUT_FILENO, buf, n);
+    }
+
+    exit(EXIT_SUCCESS);
+}
 
 ```
 
 ## 7. 简单的时间获取服务端
 
 ```
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
+#define SERV_PORT 8899
+#define BUF_SIZE 1024
+#define LISTENQ 1024
+
+int main(int argc, char **argv)
+{
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
+    {
+        perror("socket()");
+        exit(EXIT_FAILURE);
+    }
+
+    struct sockaddr_in servaddr;
+    bzero(&servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(SERV_PORT);
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    int ret = bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+    if (ret < 0)
+    {
+        perror("bind()");
+        exit(EXIT_FAILURE);
+    }
+
+    listen(sockfd, LISTENQ);
+    if (ret < 0)
+    {
+        perror("listen()");
+        exit(EXIT_FAILURE);
+    }
+
+    struct sockaddr_in raddr;
+    while (1)
+    {
+        socklen_t raddr_size = sizeof(raddr);
+        int connfd = accept(sockfd, (struct sockaddr *)&raddr, &raddr_size);
+        char raddrstr[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, (void *)&raddr.sin_addr, raddrstr, INET_ADDRSTRLEN);
+        fprintf(stdout, "connection from %s:%d\n", raddrstr, htons(raddr.sin_port));
+
+        if (connfd < 0)
+        {
+            perror("accept()");
+            exit(EXIT_FAILURE);
+        }
+
+        char buf[BUF_SIZE];
+        bzero(buf, sizeof(buf));
+        time_t ticks = time(NULL);
+        snprintf(buf, sizeof(buf), "%.24s\r\n", ctime(&ticks));
+
+        write(connfd, buf, strlen(buf));
+
+        close(connfd);
+    }
+}
 ```
 
-## 8. 稍微修改程序的IPV6客户端 
 
-```
+## 8. 本章习题Exercises  
 
-```
+1. 查看网络环境  
 
-## 9. 稍微修改程序的IPV6服务端 
+书中使用的是 netstat 命令，当前该命令在Linux中已经过时，可以使用ip和ss命令（iproute2）替换 
 
-```
+netstat -i    用于输出计算机的网络接口信息， 对应的是 ip link 命令   
 
-```
+netstat -r    用于输出路由信息   对应的事 ip route 命令  
 
-## 10. 本章习题Exercises  
+2. 运行书中给出的客户端和服务端的例子，尝试使用不同的ip运行 
 
+可以使用multihomed的机器进行测试，可以指定任意网口的ip都可以，比如我本机运行的时候可以指定lo的ip地址（127.0.0.1），也可以指定任何一个网口的地址   
+
+3. 把socket的第一个参数修改为9999（AF_INET改成9999），会如何报错？
+
+报错如下： socket(): Address family not supported by protocol  提示协议族不对   
+
+4. 修改客户端的程序，统计while循环中read被调用的次数并输出  
+
+由于程序传输的内容特别少（仅仅只有一个日期）并且在本机上或者局域网环境中测试，因此测试出来的结果都是一次，事实上在TCP传输中每次读到的数据都是不一定的（TCP流式套接字的特性），但是可以保证的是客户端和服务端传输的完整内容是一样的
 
 
 
