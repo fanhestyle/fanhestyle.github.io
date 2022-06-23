@@ -251,13 +251,33 @@ ssize_t readlinebuf(void **vptrptr)
 使用我们自己写的myread来替换read函数，基本原理就是一次先读一大块数据，但是内部返回的时候在缓冲区中逐个传给外部的调用，一旦读完，那么再次读一大块  
 
 
-# 4. 部分socket标准库函数一览
+# 4. golang中的网络IO接口
+
+以下是golang中相同作用的函数  
+
+C   ---->   Go
+
+read        io.Reader中的Read方法
+write       io.Writer中的Write方法
+readn       io.ReadFull
+writen      bufio.Writer.Write方法
+readline    bufio.Reader.ReadSlice或者bufio.Scanner
+
+
+# 5. 部分socket标准库函数一览
 
 以下socket函数使用的并不多，但是还是需要了解一下  
 
+getsockname 用户获取SOCKET中绑定的本地地址
 
+getpeername 用于获取SOCKET中绑定的远端地址
 
+```
+#include <sys/socket.h>
 
+int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+int getpeername(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+```
 
 
 
