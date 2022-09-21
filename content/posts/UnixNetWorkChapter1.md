@@ -6,29 +6,29 @@ description = ""
 categories = [
  "Unix网络编程"
 ]
-draft = false
+draft = true
 +++
 
 ## 1. 概述
 
 本章主要介绍Unix网络编程这一系列文章的相关介绍
 
-
-## 2. 环境  
+## 2. 环境
 
 平台： Linux平台，使用Ubuntu 22.04作为测试平台，Linux内核版本 5.15.0-39-generic   
 参考书籍：主要是三本书  
+
 1. 《Unix网络编程第三版卷一》  
 2. 《Unix高级编程第三版》  
 3. 《TCP-IP详解答-卷一》  
 
 另外有部分Linux相关的内容参考 《The Linux Programming Interface》    
 
-## 3. 总体介绍  
+## 3. 总体介绍
 
 本系列文章主要已编码为主，重点内容以及课后的习题也列出，便于日后查阅，以后尽可能查阅使用这些文章即可，减少翻书的可能性。    
 
-## 4. 本章内容  
+## 4. 本章内容
 
 主要介绍Unix编程的基本内容，包括：  
 
@@ -38,8 +38,7 @@ draft = false
 
 - 编写一个基本的时间获取客户端和服务端  
 
-
-## 5. errno简介  
+## 5. errno简介
 
 errno是Unix中的错误标志码，大部分都函数出错都会返回一个errno，我们可以查询errno得知出错的原因，操作errno的主要有两个函数  
 
@@ -50,6 +49,7 @@ errno是Unix中的错误标志码，大部分都函数出错都会返回一个er
 #include <stdio.h>
 void perror(const char *s);
 ```
+
 ```
 #include <string.h>
 char *strerror(int errnum);
@@ -60,11 +60,11 @@ char *strerror(int errnum);
 ```
 extern int *__errno_location (void) __THROW __attribute_const__;
 # define errno (*__errno_location ())
-
 ```
+
 可以看到errno被定义成一个函数调用的解引用形式，它调用的函数返回值是一个int*类型，因此最后的结果也是一个int类型的，当使用多线程的时候，它调用的这个函数应该是被设置为线程内的一个函数，因此返回值是Pthread-Local的变量，因此多线程之间不会共享这个变量，不会造成问题  
 
-## 6. 简单的时间获取客户端  
+## 6. 简单的时间获取客户端
 
 ```
 #include <arpa/inet.h>
@@ -147,7 +147,6 @@ int main(int argc, char **argv)
 
     exit(EXIT_SUCCESS);
 }
-
 ```
 
 ## 7. 简单的时间获取服务端
@@ -224,8 +223,7 @@ int main(int argc, char **argv)
 }
 ```
 
-
-## 8. 本章习题Exercises  
+## 8. 本章习题Exercises
 
 1. 查看网络环境  
 
@@ -246,16 +244,3 @@ netstat -r    用于输出路由信息   对应的事 ip route 命令
 4. 修改客户端的程序，统计while循环中read被调用的次数并输出  
 
 由于程序传输的内容特别少（仅仅只有一个日期）并且在本机上或者局域网环境中测试，因此测试出来的结果都是一次，事实上在TCP传输中每次读到的数据都是不一定的（TCP流式套接字的特性），但是可以保证的是客户端和服务端传输的完整内容是一样的
-
-
-
-
-
-
-
-
-
-
-
-
-
