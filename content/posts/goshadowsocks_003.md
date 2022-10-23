@@ -152,8 +152,34 @@ shadowaead/stream.go
 
 ## 4.2 stream.go
 
+这个文件主要是用来对流式套接字进行封装，将未加密的流按照4.1中给出的设置方法进行封装，主要的两个方法是reader提供的Read和writer提供的Write
+
+```go
+func (r *reader) Read(b []byte) (int, error) 
+
+
+func (w *writer) Write(b []byte) (int, error) 
+```
 
 
 
 
 
+## 4.3 packet.go
+
+这个文件主要是用来对报式套接字进行封装，主要定义了一个结构体，该结构体仅仅对读写的套接字和加密方法进行简单的封装
+
+```go
+type packetConn struct {
+    net.PacketConn
+    cipher.AEAD
+}
+```
+
+之后使用Pack和Unpack对于即将发送和接收到的报文进行加密和解密，加密和解密的方法在4.1 doc.go 中有详细的说明
+
+```go
+func Pack(dst, plaintext []byte, aead cipher.AEAD) ([]byte, error) 
+
+func Unpack(dst, pkt []byte, aead cipher.AEAD) ([]byte, error) 
+```
